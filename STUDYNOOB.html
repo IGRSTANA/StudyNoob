@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🍄 Study World</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Barra de nuvens animadas -->
+  <div class="clouds">
+    <div class="cloud c1"></div>
+    <div class="cloud c2"></div>
+    <div class="cloud c3"></div>
+  </div>
+
+  <header>
+    <h1>🍄 STUDY WORLD 🌟</h1>
+    <div class="hud">
+      <span title="Dias consecutivos estudando">⭐ Sequência: <b id="streak">0</b></span>
+      <span title="Minutos totais estudados">⏱️ Tempo: <b id="totalTime">0</b> min</span>
+      <span title="Moedas ganhas">🪙 Moedas: <b id="coins">0</b></span>
+      <span title="Temas concluídos">🏁 Concluídos: <b id="doneCount">0</b>/<b id="totalCount">0</b></span>
+    </div>
+    <div class="hud secondary">
+      <button id="exportBtn" class="small-btn">💾 Exportar</button>
+      <button id="importBtn" class="small-btn">📂 Importar</button>
+      <input type="file" id="importFile" accept=".json" hidden>
+      <button id="soundToggle" class="small-btn">🔊 Som: ON</button>
+      <button id="resetAll" class="small-btn danger">🗑️ Resetar</button>
+    </div>
+  </header>
+
+  <!-- ÁREA DO MAPA (estilo Mario World) -->
+  <section class="map-section">
+    <h2 class="map-title">🗺️ Mapa de Fases</h2>
+    <div id="mapCanvas" class="map-canvas">
+      <!-- Fases injetadas via JS -->
+    </div>
+    <p class="map-legend">
+      🟩 fase aberta &nbsp;·&nbsp; 🟨 em andamento &nbsp;·&nbsp; 🏆 concluída &nbsp;·&nbsp; 🔒 bloqueada
+    </p>
+  </section>
+
+  <main>
+    <!-- Adicionar tema -->
+    <section class="panel">
+      <h2>➕ Novo Tema</h2>
+      <input type="text" id="newTopic" placeholder="Ex: Matemática - Frações" maxlength="60">
+      <input type="number" id="newMinutes" placeholder="Meta (min)" min="1" value="30">
+      <button id="addBtn">Adicionar</button>
+      <p class="hint">Dica: cada tema vira uma fase no mapa!</p>
+    </section>
+
+    <!-- Lista de temas -->
+    <section class="panel">
+      <h2>📚 Minhas Fases</h2>
+      <ul id="topicList"></ul>
+    </section>
+
+    <!-- Cronômetro -->
+    <section class="panel timer-panel">
+      <h2>⏱️ Sessão de Estudo</h2>
+      <p id="activeTopicLabel">Nenhum tema selecionado</p>
+      <p id="timerDisplay">00:00</p>
+      <div class="timer-buttons">
+        <button id="startBtn">▶️ Iniciar</button>
+        <button id="stopBtn">⏸️ Parar</button>
+        <button id="finishBtn">✅ Concluir</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Gráfico semanal -->
+  <section class="panel chart-panel">
+    <h2>📊 Progresso dos Últimos 7 Dias</h2>
+    <canvas id="weekChart" width="700" height="220"></canvas>
+  </section>
+
+  <!-- Área de recompensas (moedas) -->
+  <section class="panel rewards-panel">
+    <h2>🎁 Loja de Recompensas</h2>
+    <p>Gaste suas moedas em recompensas reais (você mesmo define):</p>
+    <div id="rewardsList"></div>
+    <div class="reward-add">
+      <input type="text" id="rewardName" placeholder="Ex: Episódio de série" maxlength="40">
+      <input type="number" id="rewardCost" placeholder="Custo (🪙)" min="1" value="50">
+      <button id="addRewardBtn">Adicionar</button>
+    </div>
+  </section>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
