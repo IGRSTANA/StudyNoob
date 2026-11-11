@@ -4,18 +4,24 @@
 
 const STORAGE_KEY = 'studyWorldSave_v2';
 
+// ====== RECOMPENSAS FIXAS ======
+const FIXED_REWARDS = [
+  { id: 'lili-kisses', name: '100 beijinhos da minha Lili', cost: 100 },
+  { id: 'lili-duel',   name: '3 minutos de degladiação BRUTAL com a minha Lili', cost: 300 },
+];
+
 // ====== ESTADO ======
 let state = {
-  topics: [],              // { id, name, goalMinutes, done, totalMinutes, createdAt }
-  rewards: [],             // { id, name, cost, redeemed }
+  topics: [],
+  rewards: FIXED_REWARDS.map(r => ({ ...r, redeemed: false })),
   streak: 0,
   totalStudyMinutes: 0,
   coins: 0,
   lastStudyDate: null,
-  activeTimer: null,       // { topicId, startedAt }
+  activeTimer: null,
   selectedTopicId: null,
   soundOn: true,
-  history: {},             // { 'YYYY-MM-DD': minutos }
+  history: {},
   totalSessions: 0,
 };
 
@@ -60,10 +66,18 @@ function save() {
 function load() {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (raw) {
-    try { state = { ...state, ...JSON.parse(raw) }; }
-    catch (e) { console.warn('Erro ao carregar save:', e); }
+    try {
+      const parsed = JSON.parse(raw);
+      state = { ...state, ...parsed };
+      // Garante que os prêmios fixos existam (mesmo em saves antigos)
+      state.rewards = FIXED_REWARDS.map(fixed => {
+        const saved = (parsed.rewards || []).find(r => r.id === fixed.id);
+        return { ...fixed, redeemed: saved ? saved.redeemed : false };
+      });
+    } catch (e) { console.warn('Erro ao carregar save:', e); }
   }
 }
+
 
 // ====== TOAST ======
 let toastTimeout = null;
@@ -423,10 +437,6 @@ function renderChart() {
 function renderRewards() {
   const list = document.getElementById('rewardsList');
   list.innerHTML = '';
-  if (state.rewards.length === 0) {
-    list.innerHTML = '<p style="font-size:0.85rem;color:#888;">Nenhuma recompensa criada ainda.</p>';
-    return;
-  }
 
   state.rewards.forEach(r => {
     const el = document.createElement('div');
@@ -445,31 +455,10 @@ function renderRewards() {
       toast(`🎉 Recompensa resgatada: ${r.name}!`);
     };
 
-    const delBtn = document.createElement('button');
-    delBtn.textContent = '🗑️';
-    delBtn.onclick = () => {
-      if (!confirm(`Remover recompensa "${r.name}"?`)) return;
-      state.rewards = state.rewards.filter(x => x.id !== r.id);
-      playSound('delete');
-      render();
-    };
-
-    el.append(buyBtn, delBtn);
+    el.append(buyBtn);
     list.appendChild(el);
   });
 }
-
-document.getElementById('addRewardBtn').onclick = () => {
-  const name = document.getElementById('rewardName').value.trim();
-  const cost = Math.max(1, parseInt(document.getElementById('rewardCost').value) || 50);
-  if (!name) { playSound('error'); return toast('⚠️ Dê um nome à recompensa.'); }
-  state.rewards.push({ id: Date.now().toString(), name, cost, redeemed: false });
-  document.getElementById('rewardName').value = '';
-  document.getElementById('rewardCost').value = 50;
-  playSound('click');
-  render();
-  toast('🎁 Recompensa adicionada!');
-};
 
 // ====== EXPORTAR / IMPORTAR ======
 document.getElementById('exportBtn').onclick = () => {
@@ -527,10 +516,12 @@ document.getElementById('resetAll').onclick = () => {
   if (!confirm('Tem certeza absoluta?')) return;
   localStorage.removeItem(STORAGE_KEY);
   state = {
-    topics: [], rewards: [], streak: 0, totalStudyMinutes: 0, coins: 0,
-    lastStudyDate: null, activeTimer: null, selectedTopicId: null,
-    soundOn: state.soundOn, history: {}, totalSessions: 0,
-  };
+  topics: [], 
+  rewards: FIXED_REWARDS.map(r => ({ ...r, redeemed: false })),
+  streak: 0, totalStudyMinutes: 0, coins: 0,
+  lastStudyDate: null, activeTimer: null, selectedTopicId: null,
+  soundOn: state.soundOn, history: {}, totalSessions: 0,
+};
   stopTimerTick();
   document.getElementById('timerDisplay').textContent = '00:00';
   playSound('delete');
